@@ -1,0 +1,3 @@
+project=local
+table=user_info_out
+columns=user_id:STRING,userClickRate:DOUBLE,userColleRate:DOUBLE,userCartRate:DOUBLE,userBuyAbility:BIGINT,userBuyPeriod:DOUBLE,userBuyItem:BIGINT,userClickItem:BIGINT
