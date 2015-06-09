@@ -41,9 +41,9 @@ public class MyReducer implements Reducer {
 	 		long diff = dt2.getTime() - dt1.getTime();
 	 		long days = diff / (1000 * 60 * 60 * 24);
 	 		// 如果是预测日，不考虑;只处理观测日之前的数据
-	 		if (days < 0) {
-	 			days = 100;
-	 		}
+//	 		if (days < 0) {
+//	 			days = 100;
+//	 		}
 	 		return days;
 	  	} catch (Exception ex) {
 	  		ex.printStackTrace();
@@ -79,6 +79,8 @@ public class MyReducer implements Reducer {
         String item_category = "";
         boolean isCollection = false;
         
+        boolean isOnlyBefore = false; // 只输出观测值前面的数据
+        
         int is_buy = 0;
         long maxBuyDay = 0;
         long minBuyDay = 31;
@@ -109,15 +111,19 @@ public class MyReducer implements Reducer {
     		}
     		
     		if (behavior_type == 1 && day <= 31 && day > 0) {
+    			isOnlyBefore = true;
     			ClickBehavior[(int)day]++;
     		} else if (behavior_type == 4 && day <= 31 && day > 0) {
     			buyNum++;
+    			isOnlyBefore = true;
     			BuyBehavior[(int)day]++;
     		} else if (behavior_type == 2 && day <= 31 && day > 0) {
     			isCollection = true;
+    			isOnlyBefore = true;
     			ColleBehavior[(int)day]++;
     		} else if (behavior_type == 3 && day <= 31 && day > 0) {
     			isCollection = true;
+    			isOnlyBefore = true;
     			CartBehavior[(int)day]++;
     		}
     	}
@@ -310,24 +316,24 @@ public class MyReducer implements Reducer {
     	}
     	
     	// 只保存有记录的数据
-
-		result.set(0, key.getString("user_id"));
-		result.set(1, key.getString("item_id"));
-		result.set(2, item_category);
-		result.set(3, click_rate);
-		result.set(4, colle_rate);
-		result.set(5, cart_rate);
-		result.set(6, sliceNum);
-		// 总的购买记录数
-		result.set(7, buyNum);
-		// 训练集天数
-		long trainDays = relativeTime("2014-11-18");
-		result.set(8, trainDays);
-		result.set(9, is_buy);
-		result.set(10, minBuyDay);
-		result.set(11, maxBuyDay);
-		context.write(result);
-
+    	if (isOnlyBefore == true) {
+    		result.set(0, key.getString("user_id"));
+    		result.set(1, key.getString("item_id"));
+    		result.set(2, item_category);
+    		result.set(3, click_rate);
+    		result.set(4, colle_rate);
+    		result.set(5, cart_rate);
+    		result.set(6, sliceNum);
+    		// 总的购买记录数
+    		result.set(7, buyNum);
+    		// 训练集天数
+    		long trainDays = relativeTime("2014-11-18");
+    		result.set(8, trainDays);
+    		result.set(9, is_buy);
+    		result.set(10, minBuyDay);
+    		result.set(11, maxBuyDay);
+    		context.write(result);
+    	}
     }
 
     public void cleanup(TaskContext arg0) throws IOException {

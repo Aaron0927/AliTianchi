@@ -3,7 +3,7 @@
     <!-- profile -->
     <baseId>d2ad4bc5c4be54d28f3e40b98bd33f6a</baseId>
     <projectId>2227</projectId>
-    <resourceName>MR2</resourceName>
+    <resourceName>MR2_19</resourceName>
     <idePath>工作流/zcf/mapreduce</idePath>
 
     <!-- classes -->
@@ -26,14 +26,15 @@
     -->
     
     <!-- IN: user_info_in; zcf_tianchi_user_subset  -->
-    <!-- OUT: user_info_out; zcf_train_output0606; zcf_test_output0605 ww_test_output0605-->
+    <!-- OUT: user_info_out; zcf_train_output0606; zcf_test_output0605 ww_test_output0605
+    zcf_user_item_feature17_01 -->
     <!-- tables -->
     <inputTables>
         <table>
-            <name>user_info_in</name>
+            <name>zcf_tianchi_user_subset</name>
         </table>
     </inputTables>
     <outputTable>
-        <name>user_info_out</name>
+        <name>zcf_user_item_feature19_01</name>
     </outputTable>
 </mapred>

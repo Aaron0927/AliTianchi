@@ -30,10 +30,10 @@
     <!-- OUT: user_info_out; zcf_train_output18; zcf_test_output0605 ww_test_output0605-->
     <inputTables>
         <table>
-            <name>zcf_tianchi_user_subset</name>
+            <name>user_info_in</name>
         </table>
     </inputTables>
     <outputTable>
-        <name>zcf_user_item_score19</name>
+        <name>user_info_out</name>
     </outputTable>
 </mapred>

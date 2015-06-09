@@ -3,7 +3,7 @@
     <!-- profile -->
     <baseId>d2ad4bc5c4be54d28f3e40b98bd33f6a</baseId>
     <projectId>2227</projectId>
-    <resourceName>MR4</resourceName>
+    <resourceName>MR4_19</resourceName>
     <idePath>工作流/zcf/mapreduce</idePath>
 
     <!-- classes -->
@@ -29,10 +29,10 @@
 	<!-- tables -->
 	<inputTables>
 		<table>
-			<name>zcf_user18</name>
+			<name>zcf_user19</name>
 		</table>
 	</inputTables>
 	<outputTable>
-		<name>zcf_user_feature18_01</name>
+		<name>zcf_user_feature19_01</name>
 	</outputTable>
 </mapred>
