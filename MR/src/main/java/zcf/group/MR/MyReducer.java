@@ -486,7 +486,7 @@ public class MyReducer implements Reducer {
     					// 处理与第一步一样
         		    	y = process(counter1, counter2, counter3, counter4, counter5, counter6, behaviorCounter, buyCount);
     				}
-    			} else {
+    			} else { 
     				// 处理与第一步一样
     		    	Long [][] counter1 = behaviorCounter.get("01");
     		    	Long [][] counter2 = behaviorCounter.get("02");
