@@ -370,7 +370,7 @@ public class MyReducer implements Reducer {
     			if (user_first_buy == 32) {
     				// 第一次访问
     				user_first_buy = day;
-    			} else if (user_first_buy < day) {
+    			} else if (user_first_buy < day) { 
     				user_first_buy = day;
     			}
     			

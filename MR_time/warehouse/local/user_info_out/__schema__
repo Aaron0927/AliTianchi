@@ -1,0 +1,3 @@
+project=local
+table=user_info_out
+columns=time_flag:BIGINT,time_all_action:BIGINT,time_click:BIGINT,time_collection:BIGINT,time_cart:BIGINT,time_buy:BIGINT,time_all_transfer:DOUBLE,time_click_transfer:DOUBLE,time_cart_colle_transfer:DOUBLE
