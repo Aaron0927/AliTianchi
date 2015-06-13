@@ -27,10 +27,10 @@ public class MyMapper implements Mapper {
         //context.write(word, one); //输出键值对
     	//System.out.println("***************" + temp1);
     	value.set("user_id", record.getString(0));
-    	key.set("item_id", record.getString(1));
+    	value.set("item_id", record.getString(1));
     	value.set("behavior_type", record.getBigint(2));
     	value.set("user_geohash", record.getString(3));
-    	value.set("item_category", record.getString(4));
+    	key.set("item_category", record.getString(4));
     	value.set("time", record.getString(5));
     	
     	context.write(key, value);
