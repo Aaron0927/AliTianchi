@@ -41,7 +41,7 @@ public class MyReducer implements Reducer {
     	DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 	 	try {
 	 		Date dt1 = df.parse(Date1);
-	 		Date dt2 = df.parse("2014-12-17");
+	 		Date dt2 = df.parse("2014-11-26");
 
 	 		long diff = dt2.getTime() - dt1.getTime();
 	 		long days = diff / (1000 * 60 * 60 * 24);

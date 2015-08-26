@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapred>
+    <!-- profile -->
+    <baseId>0aa126b9d518f962778b4eca10965dba</baseId>
+    <projectId>2326</projectId>
+    <resourceName>MR_CATE_big_19</resourceName>
+    <idePath>工作流/mapreduce</idePath>
+
+    <!-- classes -->
+    <jobLauncher>zcf.group.MR_CATE.JobLauncher</jobLauncher>
+    <mapper>zcf.group.MR_CATE.MyMapper</mapper>
+    <reducer>zcf.group.MR_CATE.MyReducer</reducer>
+    <combiner></combiner>
+
+    <!--task-->
+    <mapOutputKey>item_category:string</mapOutputKey>
+    <mapOutputValue>item_id:string,user_id:string,behavior_type:bigint, user_geohash:string,time:string</mapOutputValue>
+    <!--
+    <partitionColumns>col1,col2</partitionColumns>
+    <outputKeySortColumns>col1,col2</outputKeySortColumns>
+    <outputKeySortOrders>ASC,DESC</outputKeySortOrders>
+    <outputGroupingColumns>col1,col2</outputGroupingColumns>
+    <numReduceTask>8</numReduceTask>
+    <memoryForMapTask>2048</memoryForMapTask>
+    <memoryForReduceTask>2048</memoryForReduceTask>
+    -->
+    
+    <!-- IN: user_info_in; zcf_tianchi_user_subset  -->
+    <!-- OUT: user_info_out; zcf_train_output0606; zcf_test_output0605 ww_test_output0605
+    zcf_user_item_feature17_01 zcf_tianchi_little_category_17-->
+    <!-- tables -->
+    <inputTables>
+        <table>
+            <name>zcf_tianchi_user_subset</name>
+        </table>
+    </inputTables>
+    <outputTable>
+        <name>zcf_tianchi_big_category_19</name>
+    </outputTable>
+</mapred>

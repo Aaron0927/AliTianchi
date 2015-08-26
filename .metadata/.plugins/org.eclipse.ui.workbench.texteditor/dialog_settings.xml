@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">
+		<item value="309" key="DIALOG_WIDTH"/>
+		<item value="167" key="DIALOG_Y_ORIGIN"/>
+		<item value="508" key="DIALOG_HEIGHT"/>
+		<item value="1010" key="DIALOG_X_ORIGIN"/>
+		<item value="1|Ubuntu|11.0|0|GTK|1|" key="DIALOG_FONT_NAME"/>
+	</section>
+	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
+		<item value="true" key="wrap"/>
+		<item value="false" key="isRegEx"/>
+		<item value="false" key="casesensitive"/>
+		<item value="false" key="incremental"/>
+		<item value="false" key="wholeword"/>
+		<item value="2014-12-11" key="selection"/>
+		<list key="findhistory">
+			<item value="2014-12-11"/>
+			<item value="isOnlyBefore"/>
+			<item value="little"/>
+			<item value="user_item_"/>
+			<item value="user_item_is_colle"/>
+			<item value="user_item_is_click"/>
+			<item value="strin"/>
+			<item value="strin,"/>
+		</list>
+		<list key="replacehistory">
+			<item value="big"/>
+			<item value="user_"/>
+			<item value="user_item_is_cart"/>
+			<item value="user_item_is_colle"/>
+			<item value="0L,"/>
+			<item value="new Long[]{0L, 0L, 0L, 0L}"/>
+			<item value="zeroInit()"/>
+			<item value="Long [][] "/>
+		</list>
+	</section>
+</section>

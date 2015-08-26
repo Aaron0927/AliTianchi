@@ -1,0 +1,56 @@
+package zcf.group.MR2;
+
+import com.aliyun.odps.data.Record;
+import com.aliyun.odps.mapred.Reducer;
+
+import java.io.IOException;
+import java.util.Iterator;
+
+/**
+ * Reducer模板。请用真实逻辑替换模板内容
+ */
+public class MyReducer implements Reducer {
+    private Record result;
+
+    public void setup(TaskContext context) throws IOException {
+        result = context.createOutputRecord();
+    }
+
+    public void reduce(Record key, Iterator<Record> values, TaskContext context) throws IOException {
+    	int user_item_is_click1 = 0; // 前一天是否点击过
+    	int user_item_is_click2 = 0; // 前两天是否点击过
+    	int user_item_is_click3 = 0;
+    	int user_item_is_click4 = 0;
+    	int user_item_is_click5 = 0;
+    	int user_item_is_click6 = 0; // 前3小时是否点击过[21,00)
+    	int user_item_is_click7 = 0; // 前6小时是否点击过[
+    	int user_item_is_click8 = 0;
+    	int user_item_is_click9 = 0;
+    	int user_item_is_click10 = 0;
+    	int user_item_is_click11 = 0;
+    	int user_item_is_click12 = 0;
+    	int user_item_is_click13 = 0;
+    	int user_item_is_click14 = 0;
+    	int user_item_is_click15 = 0;
+    	
+    	int user_item_is_click1 = 0;
+    	int user_item_is_click1 = 0;
+    	int user_item_is_click1 = 0;
+    	
+        while (values.hasNext()) {
+            Record val = values.next();
+
+
+        }
+
+
+        
+        result.set(0, key.getString("user_id"));
+
+        context.write(result);
+    }
+
+    public void cleanup(TaskContext arg0) throws IOException {
+
+    }
+}

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapred>
+
+    <!-- base_id=0aa126b9d518f962778b4eca10965dba
+project_id=2326
+token=7ea99a2022edb4ab45f21e03dfd0698fd646d3f76706e348641f05ed85a3ea01profile -->
+    <baseId>0aa126b9d518f962778b4eca10965dba</baseId>
+    <projectId>2326</projectId>
+    <resourceName>MR_time_17</resourceName>
+    <idePath>工作流/mapreduce</idePath>
+
+    <!-- classes -->
+    <jobLauncher>zcf.group.MR_time.JobLauncher</jobLauncher>
+    <mapper>zcf.group.MR_time.MyMapper</mapper>
+    <reducer>zcf.group.MR_time.MyReducer</reducer>
+    <combiner></combiner>
+
+    <!--task-->
+    <mapOutputKey>time_flag:BIGINT</mapOutputKey>
+    <mapOutputValue>time:string,behavior_type:bigint</mapOutputValue>
+    <!--
+    <partitionColumns>col1,col2</partitionColumns>
+    <outputKeySortColumns>col1,col2</outputKeySortColumns>
+    <outputKeySortOrders>ASC,DESC</outputKeySortOrders>
+    <outputGroupingColumns>col1,col2</outputGroupingColumns>
+    <numReduceTask>8</numReduceTask>
+    <memoryForMapTask>2048</memoryForMapTask>
+    <memoryForReduceTask>2048</memoryForReduceTask>
+    -->
+    
+    <!-- IN: user_info_in; zcf_time_flag  -->
+    <!-- OUT: user_info_out; zcf_train_output0606; zcf_test_output0605 ww_test_output0605
+    zcf_user_item_feature17_01 -->
+    <!-- tables -->
+    <inputTables>
+        <table>
+            <name>zcf_time_flag</name>
+        </table>
+    </inputTables>
+    <outputTable>
+        <name>zcf_time_17</name>
+    </outputTable>
+</mapred>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapred>
+    <!-- profile -->
+    <baseId>d2ad4bc5c4be54d28f3e40b98bd33f6a</baseId>
+    <projectId>2227</projectId>
+    <resourceName>MR4</resourceName>
+    <idePath>工作流/zcf/mapreduce</idePath>
+
+    <!-- classes -->
+    <jobLauncher>zcf.group.MR4.JobLauncher</jobLauncher>
+    <mapper>zcf.group.MR4.MyMapper</mapper>
+    <reducer>zcf.group.MR4.MyReducer</reducer>
+    <combiner></combiner>
+
+	<!--task -->
+	<mapOutputKey>user_id:string</mapOutputKey>
+	<mapOutputValue>click_rate:DOUBLE,colle_rate:DOUBLE,cart_rate:DOUBLE,sliceNum:BIGINT,buyNum:BIGINT,trainDays:BIGINT,is_buy:BIGINT,minBuyDay:BIGINT,maxBuyDay:BIGINT,buyDays:BIGINT
+		
+	
+	</mapOutputValue>
+	<!-- <partitionColumns>col1,col2</partitionColumns> <outputKeySortColumns>col1,col2</outputKeySortColumns> 
+		<outputKeySortOrders>ASC,DESC</outputKeySortOrders> <outputGroupingColumns>col1,col2</outputGroupingColumns> 
+		<numReduceTask>8</numReduceTask> <memoryForMapTask>2048</memoryForMapTask> 
+		<memoryForReduceTask>2048</memoryForReduceTask> -->
+
+	<!-- IN: user_info_in; zcf_tianchi_user_subset -->
+	<!-- OUT: user_info_out; zcf_train_output0606; zcf_test_output0605 ww_test_output0605 -->
+	<!-- zcf_user_item_set -->
+	<!-- tables -->
+	<inputTables>
+		<table>
+			<name>zcf_user18</name>
+		</table>
+	</inputTables>
+	<outputTable>
+		<name>zcf_user_feature18_01</name>
+	</outputTable>
+</mapred>

@@ -1,0 +1,344 @@
+package zcf.group.MR3;
+
+import com.aliyun.odps.data.Record;
+import com.aliyun.odps.mapred.Reducer;
+
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
+// 下面是用于时间转换
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+// 自然对数E
+import java.lang.Math;
+/**
+ * Reducer模板。请用真实逻辑替换模板内容
+ */
+public class MyReducer implements Reducer {
+    private Record result;
+    // 静态方法是不能访问非静态变量的
+    // 非静态方法可以访问静态变量
+
+    // 线上运行共需修改三个地方
+    // 1.预测日期
+    // 2.输入表
+    // 3.输出表
+    /**
+	 * 求相对时间
+	 * @param Date1
+	 * @return 返回与基准时间(预测日)的相对天数
+	 * 静态方法：静态方法不需要创建一个此类的对象即可使用
+	 */
+    public static long relativeTime(String Date1) {
+    	DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+	 	try {
+	 		Date dt1 = df.parse(Date1);
+	 		Date dt2 = df.parse("2014-12-18");
+
+	 		long diff = dt2.getTime() - dt1.getTime();
+	 		long days = diff / (1000 * 60 * 60 * 24);
+	 		// 如果是预测日，不考虑;只处理观测日之前的数据
+//	 		if (days < 0) {
+//	 			days = 100;
+//	 		}
+	 		return days;
+	  	} catch (Exception ex) {
+	  		ex.printStackTrace();
+	  	}
+	  	return 100L;
+    }
+
+    
+	
+    public void setup(TaskContext context) throws IOException {
+        result = context.createOutputRecord();
+    }
+
+    public void reduce(Record key, Iterator<Record> values, TaskContext context) throws IOException {   	
+    	//（1）提取用户-商品上点击转化率
+        long day = 0L;  
+        
+        // 记录用户点击，加购，收藏，购买的行为数
+        // 下标从1开始有效直到31,为了与日期一致
+        long [] BuyBehavior = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+        long [] ClickBehavior = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+        long [] ColleBehavior = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+        long [] CartBehavior = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+        
+        // 记录时间片上的点击，加购，收藏次数
+        Map<Integer, Double> ClickCounter = new TreeMap<Integer, Double>();
+        Map<Integer, Double> ColleCounter = new TreeMap<Integer, Double>();
+        Map<Integer, Double> CartCounter = new TreeMap<Integer, Double>();
+        
+        // 时间片个数=购买的次数
+        int sliceNum = 0;
+      
+        String item_category = "";
+        boolean isCollection = false;
+        
+        boolean isOnlyBefore = false; // 只输出观测值前面的数据
+        
+        int is_buy = 0;
+        long maxBuyDay = 0;
+        long minBuyDay = 31;
+        // 用于统计用户的购买力，先记录用户买个商品的购买量，后面再求和
+        int buyNum = 0;
+    	while (values.hasNext()) {
+    		Record val = values.next();
+    		String time = val.getString("time");
+    		item_category = val.getString("item_category");
+    		// 求相对天数
+    		day = relativeTime(time.substring(0, 10));
+    		
+    	
+    		int behavior_type = val.getBigint("behavior_type").intValue();
+   		
+    		// 做标记
+    		if (is_buy == 0 && day == 0 && behavior_type == 4) {
+    			is_buy = 1;
+    		}
+    		if (day > 0 && behavior_type == 4) {
+    			// 找最大最小购买日
+    			if (day > maxBuyDay) {
+    				maxBuyDay = day;
+    			}
+    			if (day < minBuyDay) {
+    				minBuyDay = day;
+    			}
+    		}
+    		
+    		if (behavior_type == 1 && day <= 31 && day > 0) {
+    			isOnlyBefore = true;
+    			ClickBehavior[(int)day]++;
+    		} else if (behavior_type == 4 && day <= 31 && day > 0) {
+    			buyNum++;
+    			isOnlyBefore = true;
+    			BuyBehavior[(int)day]++;
+    		} else if (behavior_type == 2 && day <= 31 && day > 0) {
+    			isCollection = true;
+    			isOnlyBefore = true;
+    			ColleBehavior[(int)day]++;
+    		} else if (behavior_type == 3 && day <= 31 && day > 0) {
+    			isCollection = true;
+    			isOnlyBefore = true;
+    			CartBehavior[(int)day]++;
+    		}
+    	}
+    	// 标记位置
+    	int leftFlag = 31;
+    	int rightFlag = 31;
+    	boolean rightVisit = true;
+    	
+    	// 临时存储求和结果
+    	double sumClick = 0; 
+    	double sumColle = 0;
+    	double sumCart = 0;
+    	
+    	// 存储购买后4天内有加购行为的数据统计
+    	// 这中间只有点击行为
+    	double leftClick = 0; // 剩余给下一次的点击次数
+    	double sumMixClick = 0;
+    	
+    	int rightTemp = 0; // 标记购买日之后的第一个加购或收藏行为
+    	long rightTempNum = 0; // 记录购买或加购数目
+    	
+    	for (int buyDay = 31; buyDay >= 1; --buyDay) {
+    		if (BuyBehavior[buyDay] != 0) {
+    			// 有购买行为
+    			sliceNum ++;
+    			if (isCollection == true) {
+    				// 之前标记过我才进行判断
+    				if (rightVisit == true) {
+    	    			//右边被访问过，第一次需要访问collection，找到第一个在buy日期右边的收藏行为
+    	        		for (int CartDay = buyDay - 1; CartDay >= 1; --CartDay) {
+    	        			if (CartBehavior[CartDay] != 0) {
+    	        				// 找到这样的行为
+    	        				rightTemp = CartDay;
+    	        				rightTempNum = CartBehavior[CartDay];
+    	        				rightVisit = false;
+    	        				break;
+    	        			}
+    	        		}
+    	        		
+    	        		for (int ColleDay = buyDay - 1; ColleDay >= 1; --ColleDay) {
+    	        			if (ColleBehavior[ColleDay] != 0) {
+    	        				// 找到这样的行为
+    	        				if (rightVisit == true) {
+    	        					//没有找到加购行为
+    	        					rightTemp = ColleDay;
+    	        					rightTempNum = ColleBehavior[ColleDay];
+    	        				}
+    	        				else if (rightTemp < ColleDay) {
+    	        					// 收藏日期离购买日期更近
+    	        					rightTemp = ColleDay;
+    	        					rightTempNum = ColleBehavior[ColleDay];
+    	        				}
+    	        				rightVisit = false;
+    	        				break;
+    	        			}
+    	        		}
+    	    		}
+    			}
+    			
+	    		
+	    		rightFlag =  Math.max(buyDay - 3, 1);
+	    		if (rightVisit == false) {
+	    			// 有收藏或加购行为
+	    			if (rightFlag > rightTemp) {
+		    			// 说明行为在3天之外，处理方法和第一种一样
+
+	        			// 没有加购行为，统计从leftFlag到day1+3之内的所有点击行为，加购，收藏行为
+	        			sumClick = leftClick;
+	        			sumColle = 0;
+	        			sumCart = 0;
+	        			leftClick = 0;
+	    				for (int againBuyDay = buyDay - 1; againBuyDay >= rightFlag; --againBuyDay) {
+	    					// 查看再购买日三天内是不是还有购买行为，如果有我们把(rightFlag + 1)
+	    					if (BuyBehavior[againBuyDay] != 0) {
+	    						rightFlag += 1;
+	    						break;
+	    					}
+	    				}
+	        			
+	        			for (int Day = leftFlag; Day >= rightFlag; --Day) {
+	        				sumClick += ClickBehavior[Day];
+	        				sumColle += ColleBehavior[Day];
+	        				sumCart += CartBehavior[Day];
+	        			}
+	        			// （1）时间片上的点击转化率 总的点击量/购买量
+	        			ClickCounter.put(sliceNum, sumClick / BuyBehavior[buyDay]); 
+	        		
+	        			// （2）时间片上的收藏转化率
+	        			ColleCounter.put(sliceNum, sumColle / BuyBehavior[buyDay]);
+	        			
+	        			// （3）时间片上的加购转化率
+	        			CartCounter.put(sliceNum, sumCart / BuyBehavior[buyDay]);
+	        			
+	        			// 修改左标记
+	        			leftFlag = rightFlag - 1;
+		    		} else {
+		    			// 收藏或加购行为在购买后的3天之内
+		    			// (1)先统计购买日之前的所有行为，行为区间是：[leftFlag，buyDay]
+	        			sumClick = leftClick;
+	        			sumColle = 0;
+	        			sumCart = 0;
+	        			leftClick = 0;
+	        			for (int Day = leftFlag; Day >= buyDay; --Day) {
+	        				sumClick += ClickBehavior[Day];
+	        				sumColle += ColleBehavior[Day];
+	        				sumCart += CartBehavior[Day];
+	        			}
+	        			
+		    			// (2)再统计购买日之后的所有行为，行为区间是：[buyDay - 1，rightTemp + 1]
+	        			sumMixClick = 0;
+
+	        			rightFlag = rightTemp + 1;
+	    				for (int againBuyDay = buyDay - 1; againBuyDay >= rightFlag; --againBuyDay) {
+	    					// 查看再购买日三天内是不是还有购买行为，如果有我们把(rightFlag + 1)
+	    					if (BuyBehavior[againBuyDay] != 0) {
+	    						rightFlag += 1;
+	    						break;
+	    					}
+	    				}
+	    				
+	        			for (int Day = buyDay - 1; Day >= rightFlag; --Day) {
+	        				sumMixClick += ClickBehavior[Day];
+	        			}
+	        			
+	        			// （1）时间片上的点击转化率 总的点击量/购买量
+	        			sumClick += sumMixClick * BuyBehavior[buyDay] / (BuyBehavior[buyDay] + rightTempNum);
+	        			leftClick = sumMixClick * rightTempNum / (BuyBehavior[buyDay] + rightTempNum);
+	        			ClickCounter.put(sliceNum, sumClick / BuyBehavior[buyDay]); 
+	        		
+	        			// （2）时间片上的收藏转化率
+	        			ColleCounter.put(sliceNum, sumColle / BuyBehavior[buyDay]);
+	        			
+	        			// （3）时间片上的加购转化率
+	        			CartCounter.put(sliceNum, sumCart / BuyBehavior[buyDay]);
+	        			// 修改左标记
+	        			leftFlag = rightFlag - 1;
+	        			
+		    		}
+		    		if (rightVisit == true) {
+		    			// 表示已经没有加购和收藏行为了
+		    			rightVisit = false;
+		    		} else {
+		    			rightVisit = true;
+		    		}
+	    		} else {
+        			// 没有加购行为或收藏，统计从leftFlag到day1+3之内的所有点击行为，加购，收藏行为
+        			sumClick = leftClick;
+        			sumColle = 0;
+        			sumCart = 0;
+        			leftClick = 0;
+    				for (int againBuyDay = buyDay - 1; againBuyDay >= rightFlag; --againBuyDay) {
+    					// 查看再购买日三天内是不是还有购买行为，如果有我们把(rightFlag + 1)
+    					if (BuyBehavior[againBuyDay] != 0) {
+    						rightFlag += 1;
+    						break;
+    					}
+    				}
+        			for (int Day = leftFlag; Day >= rightFlag; --Day) {
+        				sumClick += ClickBehavior[Day];
+        				sumColle += ColleBehavior[Day];
+        				sumCart += CartBehavior[Day];
+        			}
+        			// （1）时间片上的点击转化率 总的点击量/购买量
+        			ClickCounter.put(sliceNum, sumClick / BuyBehavior[buyDay]); 
+        		
+        			// （2）时间片上的收藏转化率
+        			ColleCounter.put(sliceNum, sumColle / BuyBehavior[buyDay]);
+        			
+        			// （3）时间片上的加购转化率
+        			CartCounter.put(sliceNum, sumCart / BuyBehavior[buyDay]);
+        			
+        			// 修改左标记
+        			leftFlag = rightFlag - 1;
+	    		}
+    		}
+    	}
+
+		
+//    	for (String days : BuyBehavior.keySet()) {
+//
+//    		System.err.println("++++++++++ " + days);
+//    	}
+    	double click_rate = 0;
+    	double colle_rate = 0;
+    	double cart_rate = 0;
+    	for (int i = 1; i <= sliceNum; ++i) {
+    		click_rate += ClickCounter.get(i);
+    		colle_rate += ColleCounter.get(i);
+    		cart_rate += CartCounter.get(i);
+    	}
+    	
+    	// 只保存有记录的数据
+    	if (isOnlyBefore == true) {
+    		result.set(0, key.getString("user_id"));
+    		result.set(1, key.getString("item_id"));
+    		result.set(2, item_category);
+    		result.set(3, click_rate);
+    		result.set(4, colle_rate);
+    		result.set(5, cart_rate);
+    		result.set(6, sliceNum);
+    		// 总的购买记录数
+    		result.set(7, buyNum);
+    		// 训练集天数
+    		long trainDays = relativeTime("2014-11-18");
+    		result.set(8, trainDays);
+    		result.set(9, is_buy);
+    		result.set(10, minBuyDay);
+    		result.set(11, maxBuyDay);
+    		context.write(result);
+    	}
+    }
+
+    public void cleanup(TaskContext arg0) throws IOException {
+
+    }
+}
+
+

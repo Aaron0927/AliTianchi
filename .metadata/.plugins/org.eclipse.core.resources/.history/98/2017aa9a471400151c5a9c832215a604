@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapred>
+    <!-- profile -->
+    <baseId>d2ad4bc5c4be54d28f3e40b98bd33f6a</baseId>
+    <projectId>2227</projectId>
+    <resourceName>Geo02</resourceName>
+    <idePath>工作流/zcf/mapreduce</idePath>
+
+    <!-- classes -->
+    <jobLauncher>zcf.group.Geo02.JobLauncher</jobLauncher>
+    <mapper>zcf.group.Geo02.MyMapper</mapper>
+    <reducer>zcf.group.Geo02.MyReducer</reducer>
+    <combiner></combiner>
+
+    <!--task-->
+    <mapOutputKey>word:string</mapOutputKey>
+    <mapOutputValue>cnt:bigint</mapOutputValue>
+    <!--
+    <partitionColumns>col1,col2</partitionColumns>
+    <outputKeySortColumns>col1,col2</outputKeySortColumns>
+    <outputKeySortOrders>ASC,DESC</outputKeySortOrders>
+    <outputGroupingColumns>col1,col2</outputGroupingColumns>
+    <numReduceTask>8</numReduceTask>
+    <memoryForMapTask>2048</memoryForMapTask>
+    <memoryForReduceTask>2048</memoryForReduceTask>
+    -->
+
+    <!--task-->
+	<mapOutputKey>item_id:string</mapOutputKey>
+    <mapOutputValue>item_geohash:string,user_geohash:string</mapOutputValue>
+    <!--
+    <partitionColumns>col1,col2</partitionColumns>
+    <outputKeySortColumns>col1,col2</outputKeySortColumns>
+    <outputKeySortOrders>ASC,DESC</outputKeySortOrders>
+    <outputGroupingColumns>col1,col2</outputGroupingColumns>
+    <numReduceTask>8</numReduceTask>
+    <memoryForMapTask>2048</memoryForMapTask>
+    <memoryForReduceTask>2048</memoryForReduceTask>
+    -->
+
+    <!-- tables -->
+    <!-- IN: user_info_in; zcf_geohash04  -->
+    <!-- OUT: user_info_out; zcf_geohash05; zcf_test_output0605 ww_test_output0605-->
+    <inputTables>
+        <table>
+            <name>zcf_geohash06</name>
+        </table>
+    </inputTables>
+    <outputTable>
+        <name>zcf_geohash07</name>
+    </outputTable>
+</mapred>
